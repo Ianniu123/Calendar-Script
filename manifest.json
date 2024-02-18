@@ -4,7 +4,15 @@
     "description": "Base Level Extension",
     "version": "1.0",
     "action": {
-      "default_popup": "./html/hello.html",
+      "default_popup": "./html/popup.html",
       "default_icon": "./images/hello_extensions.png"
+    },
+    "permissions": ["identity"],
+    "oauth2": {
+      "client_id": "1083055598751-iqm7t7eii15i0c3vskbnej5nag06h5qq.apps.googleusercontent.com",
+      "scopes": [
+        "https://www.googleapis.com/auth/calendar",
+        "https://www.googleapis.com/auth/directory.readonly"
+      ]
     }
 }
