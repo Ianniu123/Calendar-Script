@@ -1,17 +1,32 @@
 function handleClick() {
-    event.preventDefault();
     let OPEN_AI_KEY = document.getElementById('open_ai_key').value
-    document.getElementById('open_ai_key').value = ""
-    console.log(OPEN_AI_KEY)
-    
-    let prompt = "";
-    let data = getGPTResponse(prompt)
+    let outline = document.getElementById('course_outline').value
 
-    const arr = processDocument(data)
+    document.getElementById('open_ai_key').value = ""
+    document.getElementById('course_outline').value = ""
+
+
+
+    console.log(OPEN_AI_KEY)
+    console.log(outline)
+
+    let prompt = `List out all the due dates with the tasks labeled from this document,
+                  where each event is in the following json format: {summary: //the Course code//, description: //the task 
+                  start: {date: //date of the task in yyyy-mm-dd format}, end: {date: //date of the task in yyyy-mm-dd format}}.
+                  Here is the document: ` + outline
+
+    let data = getGPTResponse(prompt, OPEN_AI_KEY)
+
+    if (data === null) {
+        return;
+    }
+
+    //const arr = formatResponse(data)
 
     for (let i = 0; i < arr.length; i++) {
         createEvent(JSON.stringify(arr[i]))
     }
+
 }
 
 function createEvent(event) {
@@ -35,11 +50,42 @@ function createEvent(event) {
     });
 }
 
-function getGPTResponse(prompt) {
+function getGPTResponse(prompt, key) {
+    let data = null
+    const headers = new Headers({
+        'Authorization' : 'Bearer ' + key,
+        'Content-Type': 'application/json'
+    })
+    
+    const request = {
+        headers,
+        method: "POST",
+        body: JSON.stringify({
+            "model": "gpt-3.5-turbo",
+            "response_format": { "type": "json_object" },
+            "message": [
+                {
+                    "role": "user",
+                    "content": "what?",
+                }
+            ]
+        })
+    }
 
+    fetch('https://api.openai.com/v1/chat/completions', request)
+    .then((response) => {
+        data = response
+        console.log(data)
+    })
+    .catch((error) => {
+        console.log(error)
+        alert('invalid OpenAI key!')
+    })
+
+    return data
 }
 
-function processDocument(data) {
+function formatResponse(data) {
     const objects = []
 
 
